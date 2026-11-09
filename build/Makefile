@@ -196,6 +196,19 @@ input/fast:
 .PHONY : input/fast
 
 #=============================================================================
+# Target rules for targets named platformer
+
+# Build rule for target.
+platformer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 platformer
+.PHONY : platformer
+
+# fast build rule for target.
+platformer/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/platformer.dir/build.make CMakeFiles/platformer.dir/build
+.PHONY : platformer/fast
+
+#=============================================================================
 # Target rules for targets named window
 
 # Build rule for target.
@@ -284,6 +297,30 @@ src/input/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/input.dir/build.make CMakeFiles/input.dir/src/input/main.cpp.s
 .PHONY : src/input/main.cpp.s
 
+src/platformer/main.o: src/platformer/main.cpp.o
+.PHONY : src/platformer/main.o
+
+# target to build an object file
+src/platformer/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/platformer.dir/build.make CMakeFiles/platformer.dir/src/platformer/main.cpp.o
+.PHONY : src/platformer/main.cpp.o
+
+src/platformer/main.i: src/platformer/main.cpp.i
+.PHONY : src/platformer/main.i
+
+# target to preprocess a source file
+src/platformer/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/platformer.dir/build.make CMakeFiles/platformer.dir/src/platformer/main.cpp.i
+.PHONY : src/platformer/main.cpp.i
+
+src/platformer/main.s: src/platformer/main.cpp.s
+.PHONY : src/platformer/main.s
+
+# target to generate assembly for a file
+src/platformer/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/platformer.dir/build.make CMakeFiles/platformer.dir/src/platformer/main.cpp.s
+.PHONY : src/platformer/main.cpp.s
+
 src/window/main.o: src/window/main.cpp.o
 .PHONY : src/window/main.o
 
@@ -326,11 +363,15 @@ help:
 	@echo "... update_mappings"
 	@echo "... glfw"
 	@echo "... input"
+	@echo "... platformer"
 	@echo "... raylib"
 	@echo "... window"
 	@echo "... src/input/main.o"
 	@echo "... src/input/main.i"
 	@echo "... src/input/main.s"
+	@echo "... src/platformer/main.o"
+	@echo "... src/platformer/main.i"
+	@echo "... src/platformer/main.s"
 	@echo "... src/window/main.o"
 	@echo "... src/window/main.i"
 	@echo "... src/window/main.s"

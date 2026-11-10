@@ -34,7 +34,7 @@ int main()
 
     const float moveSpeed = 300.0f;
     const float jumpForce = -600.0f;
-    const float gravity = 1500.0f;
+    const float gravity = 2000.0f;
 
     bool grounded = true;
 

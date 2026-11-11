@@ -209,6 +209,19 @@ platformer/fast:
 .PHONY : platformer/fast
 
 #=============================================================================
+# Target rules for targets named topdown
+
+# Build rule for target.
+topdown: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 topdown
+.PHONY : topdown
+
+# fast build rule for target.
+topdown/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/topdown.dir/build.make CMakeFiles/topdown.dir/build
+.PHONY : topdown/fast
+
+#=============================================================================
 # Target rules for targets named window
 
 # Build rule for target.
@@ -321,6 +334,30 @@ src/platformer/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/platformer.dir/build.make CMakeFiles/platformer.dir/src/platformer/main.cpp.s
 .PHONY : src/platformer/main.cpp.s
 
+src/topdown/main.o: src/topdown/main.cpp.o
+.PHONY : src/topdown/main.o
+
+# target to build an object file
+src/topdown/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/topdown.dir/build.make CMakeFiles/topdown.dir/src/topdown/main.cpp.o
+.PHONY : src/topdown/main.cpp.o
+
+src/topdown/main.i: src/topdown/main.cpp.i
+.PHONY : src/topdown/main.i
+
+# target to preprocess a source file
+src/topdown/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/topdown.dir/build.make CMakeFiles/topdown.dir/src/topdown/main.cpp.i
+.PHONY : src/topdown/main.cpp.i
+
+src/topdown/main.s: src/topdown/main.cpp.s
+.PHONY : src/topdown/main.s
+
+# target to generate assembly for a file
+src/topdown/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/topdown.dir/build.make CMakeFiles/topdown.dir/src/topdown/main.cpp.s
+.PHONY : src/topdown/main.cpp.s
+
 src/window/main.o: src/window/main.cpp.o
 .PHONY : src/window/main.o
 
@@ -365,6 +402,7 @@ help:
 	@echo "... input"
 	@echo "... platformer"
 	@echo "... raylib"
+	@echo "... topdown"
 	@echo "... window"
 	@echo "... src/input/main.o"
 	@echo "... src/input/main.i"
@@ -372,6 +410,9 @@ help:
 	@echo "... src/platformer/main.o"
 	@echo "... src/platformer/main.i"
 	@echo "... src/platformer/main.s"
+	@echo "... src/topdown/main.o"
+	@echo "... src/topdown/main.i"
+	@echo "... src/topdown/main.s"
 	@echo "... src/window/main.o"
 	@echo "... src/window/main.i"
 	@echo "... src/window/main.s"

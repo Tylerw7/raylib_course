@@ -23,6 +23,12 @@ int main()
 
     const float playerSize = 50.0f;
     const float moveSpeed = 300.0f;
+    float velocityY = 0.0f;
+
+    const float jumpForce = -600.0f;
+    const float gravity = 2000.0f;
+    bool grounded = true;
+    const float groundY = 520.0f;
 
 
 
@@ -40,6 +46,24 @@ int main()
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
         {
             player.x -= moveSpeed * deltaTime;
+        }
+
+        if (IsKeyPressed(KEY_SPACE) && grounded)
+        {
+            velocityY = jumpForce;
+            grounded = false;
+        }
+
+        // Gravity
+        velocityY += gravity * deltaTime;
+        player.y += velocityY * deltaTime;
+
+        // Ground
+        if (player.y + playerSize >= groundY)
+        {
+            velocityY = 0.0f;
+            grounded = true;
+            player.y = groundY - playerSize;
         }
 
         BeginDrawing();

@@ -132,10 +132,36 @@ int main()
         //========================
 
         // Keep camera focused on the player's center
-        camera.target = {
+        Vector2 playerCenter = {
             player.x + playerSize / 2.0f,
             player.y + playerSize / 2.0f
         };
+
+        float cameraSmoothing = 5.0f;
+
+        camera.target.x +=
+            (playerCenter.x - camera.target.x) *
+            cameraSmoothing * deltaTime;
+
+        camera.target.y +=
+            (playerCenter.y - camera.target.y) *
+            cameraSmoothing * deltaTime;
+
+        // Camera Bounderies
+        float halfScreenWidth = WINDOW_WIDTH / (2.0f * camera.zoom);
+
+        float halfScreenHeight = WINDOW_HEIGHT / (2.0f * camera.zoom);
+
+        // Horizontal boundaries
+        if (camera.target.x < halfScreenWidth)
+        {
+            camera.target.x = halfScreenWidth;
+        }
+
+        if (camera.target.x > worldWidth - halfScreenWidth)
+        {
+            camera.target.x = worldWidth - halfScreenWidth;
+        }    
 
         //========================
         // DRAW
@@ -165,7 +191,6 @@ int main()
 
         EndMode2D();
 
-    
 
         EndDrawing();
     }

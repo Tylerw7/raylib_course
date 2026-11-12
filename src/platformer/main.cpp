@@ -1,42 +1,74 @@
 
 #include "raylib.h"
 
-
-
-
 int main()
 {
-    //Window
-    int windowWidth = 1280;
-    int windowHeight = 720;
+    // Window
+    const int WINDOW_WIDTH = 1280;
+    const int WINDOW_HEIGHT = 720;
 
-    InitWindow(windowWidth, windowHeight, "platformer");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Platformer");
     SetTargetFPS(60);
 
-    struct Vector2
-    {
-        float x;
-        float y;
+    //************************
+    // WORLD
+    //************************
+
+    const float groundY = 520.0f;
+    const float worldWidth = WINDOW_WIDTH * 4.0f;
+
+    Rectangle groundRect = {
+        0.0f,
+        groundY,
+        worldWidth,
+        (float)WINDOW_HEIGHT - groundY
     };
 
-    Vector2 player = {100.0f, 470.f};
+    //************************
+    // PLAYER
+    //************************
+
+    Vector2 player = { 100.0f, groundY - 50.0f };
 
     const float playerSize = 50.0f;
     const float moveSpeed = 300.0f;
-    float velocityY = 0.0f;
 
+    float velocityY = 0.0f;
     const float jumpForce = -600.0f;
     const float gravity = 2000.0f;
+
     bool grounded = true;
-    const float groundY = 520.0f;
 
+    //************************
+    // CAMERA
+    //************************
 
+    Camera2D camera = { 0 };
 
-    // DrawRectangle(posX, posY, width, height, color);
+    camera.target = {
+        player.x + playerSize / 2.0f,
+        player.y + playerSize / 2.0f
+    };
+
+    camera.offset = {
+        WINDOW_WIDTH / 2.0f,
+        WINDOW_HEIGHT / 2.0f
+    };
+
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+    //************************
+    // GAME LOOP
+    //************************
 
     while (!WindowShouldClose())
     {
         float deltaTime = GetFrameTime();
+
+        //========================
+        // INPUT
+        //========================
 
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
         {
@@ -48,46 +80,97 @@ int main()
             player.x -= moveSpeed * deltaTime;
         }
 
+        // World boundaries
+        if (player.x < 0.0f)
+        {
+            player.x = 0.0f;
+        }
+
+        if (player.x + playerSize > worldWidth)
+        {
+            player.x = worldWidth - playerSize;
+        }
+
+        // Jump
         if (IsKeyPressed(KEY_SPACE) && grounded)
         {
             velocityY = jumpForce;
             grounded = false;
         }
 
-        // Gravity
+        //========================
+        // PHYSICS
+        //========================
+
+        // Apply gravity
         velocityY += gravity * deltaTime;
+
+        // Update vertical position
         player.y += velocityY * deltaTime;
 
-        // Ground
-        if (player.y + playerSize >= groundY)
+        // Assume player is airborne
+        grounded = false;
+
+        // Player collision rectangle
+        Rectangle playerRect = {
+            player.x,
+            player.y,
+            playerSize,
+            playerSize
+        };
+
+        // Ground collision
+        if (CheckCollisionRecs(playerRect, groundRect) && velocityY >= 0.0f)
         {
+            player.y = groundY - playerSize;
             velocityY = 0.0f;
             grounded = true;
-            player.y = groundY - playerSize;
         }
+
+        //========================
+        // CAMERA UPDATE
+        //========================
+
+        // Keep camera focused on the player's center
+        camera.target = {
+            player.x + playerSize / 2.0f,
+            player.y + playerSize / 2.0f
+        };
+
+        //========================
+        // DRAW
+        //========================
 
         BeginDrawing();
 
         ClearBackground(SKYBLUE);
+
+        // Draw the world using camera coordinates
+        BeginMode2D(camera);
+
         // Ground
-        DrawRectangle(0, 520, 1280, 200, DARKGREEN);
+        DrawRectangleRec(groundRect, DARKGREEN);
 
         // Player
         DrawRectangle(
             (int)player.x,
             (int)player.y,
             (int)playerSize,
-            (int)playerSize, 
+            (int)playerSize,
             RED
         );
 
+        // Debug collision outlines
+        DrawRectangleLinesEx(playerRect, 2.0f, YELLOW);
+
+        EndMode2D();
+
+    
 
         EndDrawing();
     }
 
     CloseWindow();
-
-
 
     return 0;
 }

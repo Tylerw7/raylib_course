@@ -26,12 +26,17 @@ int main()
     const float groundY = 520.0f;
     const float worldWidth = WINDOW_WIDTH * 4.0f;
 
-    Rectangle groundRect = {
-        0.0f,
-        groundY,
-        worldWidth,
-        (float)WINDOW_HEIGHT - groundY
+    Platform platforms[] =
+    {
+        {{0.0f, groundY, worldWidth, 200.0f}},
+        {{400.0f, 420.0f, 200.0f, 30.0f}},
+        {{750.0f, 340.0f, 200.0f, 30.0f}},
+        {{1100.0f, 430.0f, 250.0f, 30.0f}},
+        {{1550.0f, 360.0f, 200.0f, 30.0f}},
+        {{2000.0f, 290.0f, 300.0f, 30.0f}}
     };
+
+    const int platformCount = sizeof(platforms) / sizeof(platforms[0]);
 
     //************************
     // PLAYER
@@ -128,12 +133,25 @@ int main()
             playerSize
         };
 
-        // Ground collision
-        if (CheckCollisionRecs(playerRect, groundRect) && velocityY >= 0.0f)
+        // Check every platform
+        for (int i = 0; i < platformCount; i++)
         {
-            player.y = groundY - playerSize;
-            velocityY = 0.0f;
-            grounded = true;
+            Rectangle platformRect = platforms[i].rect;
+
+            if (CheckCollisionRecs(playerRect, platformRect) &&
+                velocityY >= 0.0f)
+            {
+                // Place player on top of platform
+                player.y = platformRect.y - playerSize;
+
+                // Stop downward movement
+                velocityY = 0.0f;
+
+                grounded = true;
+
+                // Update collision rectangle
+                playerRect.y = player.y;
+            }
         }
 
         //========================
@@ -183,8 +201,12 @@ int main()
         // Draw the world using camera coordinates
         BeginMode2D(camera);
 
-        // Ground
-        DrawRectangleRec(groundRect, DARKGREEN);
+        // Ground / Platform
+        for (int i = 0; i < platformCount; i++)
+        {
+            DrawRectangleRec(platforms[i].rect, DARKGREEN);
+        }
+        
 
         // Player
         DrawRectangle(

@@ -1,6 +1,15 @@
 
 #include "raylib.h"
 
+
+
+struct Platform 
+{
+    Rectangle rect;
+};
+
+
+
 int main()
 {
     // Window

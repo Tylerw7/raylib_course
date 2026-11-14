@@ -29,6 +29,40 @@ struct Platform
     Rectangle rect;
 };
 
+struct Level
+{
+    Platform* Platforms;
+    int platformCount;
+    float worldWidth;
+    Vector2 playerSpawn;
+};
+
+
+//**************************************
+// Level Data
+//**************************************
+const float GROUND_Y = 520.0f;
+
+Platform levelPlatforms[] =
+{
+    {{0, GROUND_Y, 5120, 200}},
+    {{400, 420, 200, 30}},
+    {{750, 340, 200, 30}},
+    {{1100, 430, 250, 30}},
+    {{1550, 360, 200, 30}},
+    {{2000, 290, 300, 30}}
+};
+
+Platform level2Platforms[] =
+{
+    {{0, GROUND_Y, 5120, 200}},
+    {{300, 400, 200, 30}},
+    {{650, 320, 250, 30}},
+    {{1050, 250, 200, 30}},
+    {{1450, 380, 300, 30}},
+    {{1950, 300, 250, 30}}
+};
+
 
 
 

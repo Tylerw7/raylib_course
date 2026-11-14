@@ -48,7 +48,8 @@ int main()
     const float moveSpeed = 300.0f;
 
     float velocityY = 0.0f;
-    const float jumpForce = -600.0f;
+    float velocityX = 0.0f;
+    const float jumpForce = -800.0f;
     const float gravity = 2000.0f;
 
     bool grounded = true;
@@ -84,15 +85,19 @@ int main()
         // INPUT
         //========================
 
+        velocityX = 0.0f;
+
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
         {
-            player.x += moveSpeed * deltaTime;
+            velocityX = moveSpeed;
         }
 
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
         {
-            player.x -= moveSpeed * deltaTime;
+            velocityX = -moveSpeed;
         }
+
+        player.x += velocityX * deltaTime;
 
         // World boundaries
         if (player.x < 0.0f)
@@ -116,6 +121,9 @@ int main()
         // PHYSICS
         //========================
 
+        float previousX = player.x;
+        float previousY = player.y;
+
         // Apply gravity
         velocityY += gravity * deltaTime;
 
@@ -133,25 +141,47 @@ int main()
             playerSize
         };
 
-        // Check every platform
+
         for (int i = 0; i < platformCount; i++)
         {
-            Rectangle platformRect = platforms[i].rect;
+            Rectangle platform = platforms[i].rect;
 
-            if (CheckCollisionRecs(playerRect, platformRect) &&
-                velocityY >= 0.0f)
+            if (CheckCollisionRecs(playerRect, platform))
             {
-                // Place player on top of platform
-                player.y = platformRect.y - playerSize;
+                // Landing on top
+                if (velocityY > 0.0f &&
+                    previousY + playerSize <= platform.y)
+                {
+                    player.y = platform.y - playerSize;
+                    velocityY = 0.0f;
+                    grounded = true;
+                }
 
-                // Stop downward movement
-                velocityY = 0.0f;
+                // Hitting the bottom
+                else if (velocityY < 0.0f &&
+                        previousY >= platform.y + platform.height)
+                {
+                    player.y = platform.y + platform.height;
+                    velocityY = 0.0f;
+                }
 
-                grounded = true;
+                // Hitting the left side
+                if (velocityX > 0.0f &&
+                    previousX + playerSize <= platform.x)
+                {
+                    player.x = platform.x - playerSize;
+                }
 
-                // Update collision rectangle
-                playerRect.y = player.y;
+                // Hitting the right side
+                else if (velocityX < 0.0f &&
+                        previousX >= platform.x + platform.width)
+                {
+                    player.x = platform.x + platform.width;
+                }
             }
+
+            // Update rectangle after resolving collision
+            playerRect.y = player.y;
         }
 
         //========================

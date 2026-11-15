@@ -43,7 +43,7 @@ struct Level
 //**************************************
 const float GROUND_Y = 520.0f;
 
-Platform levelPlatforms[] =
+Platform level1Platforms[] =
 {
     {{0, GROUND_Y, 5120, 200}},
     {{400, 420, 200, 30}},
@@ -62,6 +62,27 @@ Platform level2Platforms[] =
     {{1450, 380, 300, 30}},
     {{1950, 300, 250, 30}}
 };
+
+
+
+Level levels[] =
+{
+    {
+        level1Platforms,
+        sizeof(level1Platforms) / sizeof(level1Platforms[0]),
+        5120.0f,
+        {100.0f, GROUND_Y - 50.0f}
+    },
+
+    {
+        level2Platforms,
+        sizeof(level2Platforms) / sizeof(level2Platforms[0]),
+        5120.0f,
+        {100.0f, GROUND_Y - 50.0f}
+    }
+};
+
+const int levelCount = sizeof(levels) / sizeof(levels[0]);
 
 
 
@@ -93,6 +114,12 @@ void DrawPlayer(const Player& player);
 
 void DrawWorld(Platform platforms[], int platformCount);
 
+void LoadLevel(
+    Player& player,
+    Camera2D& camera,
+    const Level& level
+);
+
 
 
 
@@ -107,6 +134,10 @@ int main()
     // Window
     const int WINDOW_WIDTH = 1280;
     const int WINDOW_HEIGHT = 720;
+
+    // LEVEL INFO
+    int currentLevelIndex = 0;
+    Level& currentLevel = levels[currentLevelIndex];
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Platformer");
     SetTargetFPS(60);
@@ -176,6 +207,22 @@ int main()
     {
         float deltaTime = GetFrameTime();
 
+        if (IsKeyPressed(KEY_ONE))
+        {
+            currentLevelIndex = 0;
+
+            LoadLevel(player, camera, levels[currentLevelIndex]);
+        }
+
+        if (IsKeyPressed(KEY_TWO))
+        {
+            currentLevelIndex = 1;
+
+            LoadLevel(player, camera, levels[currentLevelIndex]);
+        }
+
+        Level& currentLevel = levels[currentLevelIndex];
+
        // Save previous positions
        float previousX = player.position.x;
        float previousY = player.position.y;
@@ -184,14 +231,14 @@ int main()
        UpdatePlayer(player, deltaTime);
 
        // Collisions
-       ResolveCollisions(player,platforms, platformCount,previousX,previousY);
+       ResolveCollisions(player,currentLevel.Platforms, currentLevel.platformCount,previousX,previousY);
 
            // Camera
        UpdateCamera(
             camera,
             player,
             deltaTime,
-            worldWidth,
+            currentLevel.worldWidth,
             WINDOW_WIDTH
         );
 
@@ -201,7 +248,7 @@ int main()
         ClearBackground(SKYBLUE);
         BeginMode2D(camera);
 
-        DrawWorld(platforms, platformCount);
+        DrawWorld(currentLevel.Platforms, currentLevel.platformCount);
         DrawPlayer(player);
 
         EndMode2D();
@@ -361,4 +408,27 @@ void DrawWorld(Platform platforms[], int platformCount)
         DrawRectangleRec(platforms[i].rect, DARKGREEN);
 
     }
+}
+
+
+void LoadLevel(
+    Player& player,
+    Camera2D& camera,
+    const Level& level
+)
+{
+    // Reset player position
+    player.position = level.playerSpawn;
+
+    // Reset velocity
+    player.velocity = {0.0f, 0.0f};
+
+    // Reset grounded state
+    player.grounded = true;
+
+    // Reset camera
+    camera.target = {
+        player.position.x + player.size / 2.0f,
+        player.position.y + player.size / 2.0f
+    };
 }

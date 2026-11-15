@@ -47,13 +47,14 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
         PRIVATE ${PROJECT_SOURCE_DIR}/include
     )
 
-endforeach()
+    # Copy this example's assets beside its executable
+    get_filename_component(EXAMPLE_DIR "${EXAMPLE_FILE}" DIRECTORY)
+    if(EXISTS "${EXAMPLE_DIR}/assets")
+        add_custom_command(TARGET ${EXAMPLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${EXAMPLE_DIR}/assets"
+            "$<TARGET_FILE_DIR:${EXAMPLE_NAME}>/assets"
+        )
+    endif()
 
-# Copy this example's assets beside its executable
-if(EXISTS "${EXAMPLE_DIR}/assets")
-add_custom_command(TARGET ${EXAMPLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${EXAMPLE_DIR}/assets"
-    "$<TARGET_FILE_DIR:${EXAMPLE_NAME}>/assets"
-)
-endif()
+endforeach()

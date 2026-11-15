@@ -24,6 +24,9 @@ struct Player
     bool grounded;
     bool facingLeft;
 
+    int currentFrame;
+    float animationTimer;
+
     Texture2D texture;
 };
 
@@ -145,6 +148,10 @@ int main()
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Platformer");
     SetTargetFPS(60);
 
+    // Resolve asset paths relative to the executable, not the launch directory,
+    // so the game works no matter where it's run from.
+    ChangeDirectory(GetApplicationDirectory());
+
     //**************************************
     // WORLD
     //**************************************
@@ -181,7 +188,11 @@ int main()
 
     player.grounded = true;
     player.facingLeft = false;
-    player.texture = LoadTexture("assets/player_sprite.png");
+
+    player.currentFrame = 0;
+    player.animationTimer = 0.0f;
+
+    player.texture = LoadTexture("assets/player_run_animation.png");
 
     if (player.texture.id == 0)
     {
@@ -287,11 +298,13 @@ void UpdatePlayer(Player& player, float deltaTime)
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
     {
         player.velocity.x = player.moveSpeed;
+        player.facingLeft = false;
     }
 
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
     {
         player.velocity.x = -player.moveSpeed;
+        player.facingLeft = true;
     }
 
     // Jump
@@ -307,6 +320,37 @@ void UpdatePlayer(Player& player, float deltaTime)
     // Position
     player.position.x += player.velocity.x * deltaTime;
     player.position.y += player.velocity.y * deltaTime;
+
+    // Animation
+    const float frameDuration = 0.10f;
+
+    bool moving =player.velocity.x != 0.0f;
+
+    if (moving)
+    {
+        player.animationTimer += deltaTime;
+
+        while(player.animationTimer >= frameDuration)
+        {
+            player.animationTimer -= frameDuration;
+
+            player.currentFrame++;
+
+            int frameCount = 5;
+
+            if (player.facingLeft)
+            {
+                frameCount = 4;
+            }
+
+            player.currentFrame %= frameCount;
+        }
+    }
+    else
+    {
+        player.currentFrame = 0;
+        player.animationTimer = 0.0f;
+    }
 }
 
 
@@ -406,24 +450,25 @@ void UpdateCamera(
 
 void DrawPlayer(const Player& player)
 {
+    const int FRAME_WIDTH = 144;
+    const int FRAME_HEIGHT = 192;
+
+    int animationRow = player.facingLeft ? 1 : 0;
+
     Rectangle source = {
-        0.0f,
-        0.0f,
-        (float)player.texture.width,
-        (float)player.texture.height
+        (float)(player.currentFrame * FRAME_WIDTH),
+        (float)(animationRow * FRAME_HEIGHT),
+        (float)FRAME_WIDTH,
+        (float)FRAME_HEIGHT
     };
 
-    // Flip horizontally
-    if (player.facingLeft)
-    {
-        source.width *= -1.0f;
-    }
+    float drawHeight = player.size * 1.3333f;
 
     Rectangle destination = {
         player.position.x,
-        player.position.y,
+        player.position.y + player.size - drawHeight,
         player.size,
-        player.size
+        drawHeight
     };
 
     Vector2 origin = {0.0f, 0.0f};

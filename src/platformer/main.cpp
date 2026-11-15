@@ -22,6 +22,9 @@ struct Player
     float gravity;
 
     bool grounded;
+    bool facingLeft;
+
+    Texture2D texture;
 };
 
 struct Platform
@@ -177,6 +180,15 @@ int main()
     player.gravity = 2000.0f;
 
     player.grounded = true;
+    player.facingLeft = false;
+    player.texture = LoadTexture("assets/player_sprite.png");
+
+    if (player.texture.id == 0)
+    {
+        TraceLog(LOG_ERROR, "Failed to load player texture!");
+        CloseWindow();
+        return 1;
+    }
 
     //**************************************
     // CAMERA
@@ -257,6 +269,8 @@ int main()
 
 
     }
+
+    UnloadTexture(player.texture);
 
     CloseWindow();
 
@@ -392,12 +406,35 @@ void UpdateCamera(
 
 void DrawPlayer(const Player& player)
 {
-    DrawRectangle(
-        (int)player.position.x,
-        (int)player.position.y,
-        (int)player.size,
-        (int)player.size,
-        RED
+    Rectangle source = {
+        0.0f,
+        0.0f,
+        (float)player.texture.width,
+        (float)player.texture.height
+    };
+
+    // Flip horizontally
+    if (player.facingLeft)
+    {
+        source.width *= -1.0f;
+    }
+
+    Rectangle destination = {
+        player.position.x,
+        player.position.y,
+        player.size,
+        player.size
+    };
+
+    Vector2 origin = {0.0f, 0.0f};
+
+    DrawTexturePro(
+        player.texture,
+        source,
+        destination,
+        origin,
+        0.0f,
+        WHITE
     );
 }
 

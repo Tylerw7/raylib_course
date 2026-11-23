@@ -17,44 +17,54 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
-# Find all example main.cpp files
-file(GLOB_RECURSE EXAMPLE_FILES
-    CONFIGURE_DEPENDS
+
+# Find each example's main.cpp under src/
+file(GLOB EXAMPLE_MAINS CONFIGURE_DEPENDS
     "${PROJECT_SOURCE_DIR}/src/*/main.cpp"
 )
 
-foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
 
-    # Get example directory name
-    get_filename_component(EXAMPLE_NAME
-        "${EXAMPLE_FILE}" DIRECTORY
+foreach(EXAMPLE_MAIN ${EXAMPLE_MAINS})
+
+    # Get example directory
+    get_filename_component(EXAMPLE_DIR
+        "${EXAMPLE_MAIN}" DIRECTORY
     )
 
+    # Get executable name from folder
     get_filename_component(EXAMPLE_NAME
-        "${EXAMPLE_NAME}" NAME
+        "${EXAMPLE_DIR}" NAME
     )
 
-    # Create separate executable
+    # Gather all C/C++ sources in that folder
+    file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS
+        "${EXAMPLE_DIR}/*.cpp"
+        "${EXAMPLE_DIR}/*.c"
+    )
+
+
+    # Create executable
     add_executable(${EXAMPLE_NAME}
-        "${EXAMPLE_FILE}"
+        ${EXAMPLE_SOURCES}
     )
 
+
+    # Link raylib
     target_link_libraries(${EXAMPLE_NAME}
         PRIVATE raylib
     )
 
+
+    # Include project headers
     target_include_directories(${EXAMPLE_NAME}
         PRIVATE ${PROJECT_SOURCE_DIR}/include
     )
 
-    # Copy this example's assets beside its executable
-    get_filename_component(EXAMPLE_DIR "${EXAMPLE_FILE}" DIRECTORY)
-    if(EXISTS "${EXAMPLE_DIR}/assets")
-        add_custom_command(TARGET ${EXAMPLE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${EXAMPLE_DIR}/assets"
-            "$<TARGET_FILE_DIR:${EXAMPLE_NAME}>/assets"
-        )
-    endif()
+
+    # Define absolute asset directory
+    target_compile_definitions(${EXAMPLE_NAME}
+        PRIVATE
+        ASSET_DIR="${EXAMPLE_DIR}/assets"
+    )
 
 endforeach()
